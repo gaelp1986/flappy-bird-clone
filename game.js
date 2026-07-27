@@ -61,6 +61,21 @@ function update() {
   pipes = pipes.filter(pipe => pipe.x + PIPE_WIDTH > 0);
 
   // TODO: check collisions (bird vs pipes)
+  const birdLeft = bird.x - bird.size;
+  const birdRight = bird.x + bird.size;
+  const birdTop = bird.y -bird.size;
+  const birdBottom = bird.y + bird.size;
+  
+  pipes.forEach(pipe =>{
+    const pipeLeft = pipe.x;
+    const pipeRight = pipe.x + PIPE_WIDTH;
+    const gapTop = pipe.gapY;
+    const gapBottom = pipe.gapY + GAP_HEIGHT;
+    if ((birdTop < gapTop || birdBottom > gapBottom) && (birdRight > pipeLeft && birdLeft < pipeRight)){
+      endGame();
+    }
+  });
+
   if (bird.y - bird.size < 0) {
     bird.y = bird.size;
     bird.velocity = 0;
