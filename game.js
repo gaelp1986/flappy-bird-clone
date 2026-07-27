@@ -83,7 +83,7 @@ function update() {
 
   if (bird.y + bird.size > canvas.height) {
     bird.y = canvas.height - bird.size;
-    bird.velocity = 0;
+    endGame();
   }
 
   // TODO: update score when bird passes a pipe
