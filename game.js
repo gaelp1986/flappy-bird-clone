@@ -1,4 +1,4 @@
-// ---- Shell: canvas + DOM setup (scaffolded) ----
+// ---- Shell: canvas + DOM setup ----
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -10,55 +10,85 @@ const highScoreEl = document.getElementById('high-score');
 
 let state = 'start'; // 'start' | 'playing' | 'gameover'
 
-// ---- Core: YOU write this part ----
-// bird object (position, velocity, size)
+// ---- Core: constants ----
 const GRAVITY = 0.5;
 const JUMP_STRENGTH = 8;
+
+const GAP_HEIGHT = 150;
+const PIPE_MARGIN = 20;
+const PIPE_WIDTH = 60;
+const PIPE_SPEED = 3;
+
+// ---- Core: game state ----
 const bird = {
-  x : 80,
+  x: 80,
   y: canvas.height / 2,
   size: 20
-
 };
-// pipes array (position, gap, speed)
-// gravity + jump constants
+
+let pipes = [];
 
 function resetGame() {
-  // TODO: reset bird position/velocity, clear pipes, reset score
+  // TODO: reset score
   bird.y = canvas.height / 2;
   bird.velocity = 0;
+  pipes = [];
+}
 
+function spawnPipe() {
+  const minGapY = PIPE_MARGIN;
+  const maxGapY = canvas.height - GAP_HEIGHT - PIPE_MARGIN;
+  const gapY = minGapY + Math.random() * (maxGapY - minGapY);
+
+  pipes.push({ x: canvas.width, gapY: gapY });
 }
 
 function update() {
-  // TODO: apply gravity to bird velocity, update bird position
+  // apply gravity to bird velocity, update bird position
   bird.velocity += GRAVITY;
   bird.y += bird.velocity;
 
-  // TODO: move pipes left, spawn new pipes, despawn off-screen ones
-  // TODO: check collisions (bird vs pipes, bird vs ground/ceiling)
-  if ( bird.y - bird.size < 0){
-    bird.y= bird.size;
+  // move pipes left, spawn new pipes, despawn off-screen ones
+  pipes.forEach(pipe => {
+    pipe.x -= PIPE_SPEED;
+  });
+
+  const lastPipe = pipes[pipes.length - 1];
+  if (pipes.length === 0 || bird.x > lastPipe.x + PIPE_WIDTH / 2) {
+    spawnPipe();
+  }
+
+  pipes = pipes.filter(pipe => pipe.x + PIPE_WIDTH > 0);
+
+  // TODO: check collisions (bird vs pipes)
+  if (bird.y - bird.size < 0) {
+    bird.y = bird.size;
     bird.velocity = 0;
   }
 
-  if (bird.y + bird.size > canvas.height){
-      bird.y = canvas.height - bird.size;
-      bird.velocity = 0;
+  if (bird.y + bird.size > canvas.height) {
+    bird.y = canvas.height - bird.size;
+    bird.velocity = 0;
   }
-
 
   // TODO: update score when bird passes a pipe
 }
 
+// ---- Shell: rendering ----
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // TODO: draw bird
+
+  ctx.fillStyle = 'green';
+  pipes.forEach(pipe => {
+    const gapBottom = pipe.gapY + GAP_HEIGHT;
+    ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.gapY);
+    ctx.fillRect(pipe.x, gapBottom, PIPE_WIDTH, canvas.height - gapBottom);
+  });
+
   ctx.beginPath();
-  ctx.arc(bird.x,bird.y, bird.size, 0, Math.PI * 2);
+  ctx.arc(bird.x, bird.y, bird.size, 0, Math.PI * 2);
   ctx.fillStyle = 'yellow';
   ctx.fill();
-  // TODO: draw pipes
 }
 
 function gameLoop() {
@@ -70,7 +100,6 @@ function gameLoop() {
 }
 
 function flap() {
-  // TODO: set bird velocity upward
   bird.velocity = -JUMP_STRENGTH;
 }
 
