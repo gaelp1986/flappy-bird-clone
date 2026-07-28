@@ -17,10 +17,14 @@ let highScore = Number(localStorage.getItem('flappyHighScore')) || 0;
 const GRAVITY = 0.5;
 const JUMP_STRENGTH = 8;
 
-const GAP_HEIGHT = 150;
+const BASE_GAP_HEIGHT = 150;
 const PIPE_MARGIN = 20;
 const PIPE_WIDTH = 60;
-const PIPE_SPEED = 3;
+const BASE_PIPE_SPEED = 3;
+const MIN_GAP_HEIGHT = 90;
+
+let pipeSpeed = BASE_PIPE_SPEED;
+let gapHeight = BASE_GAP_HEIGHT;
 
 // ---- Core: game state ----
 const bird = {
@@ -37,14 +41,16 @@ function resetGame() {
   bird.y = canvas.height / 2;
   bird.velocity = 0;
   pipes = [];
+  pipeSpeed = BASE_PIPE_SPEED;
+  gapHeight = BASE_GAP_HEIGHT;
 }
 
 function spawnPipe() {
   const minGapY = PIPE_MARGIN;
-  const maxGapY = canvas.height - GAP_HEIGHT - PIPE_MARGIN;
+  const maxGapY = canvas.height - gapHeight - PIPE_MARGIN;
   const gapY = minGapY + Math.random() * (maxGapY - minGapY);
 
-  pipes.push({ x: canvas.width, gapY: gapY, passed: false });
+  pipes.push({ x: canvas.width, gapY: gapY, gapHeight: gapHeight,  passed: false });
 }
 
 function update() {
@@ -54,7 +60,7 @@ function update() {
 
   // move pipes left, spawn new pipes, despawn off-screen ones
   pipes.forEach(pipe => {
-    pipe.x -= PIPE_SPEED;
+    pipe.x -= pipeSpeed;
   });
 
   const lastPipe = pipes[pipes.length - 1];
@@ -74,7 +80,7 @@ function update() {
     const pipeLeft = pipe.x;
     const pipeRight = pipe.x + PIPE_WIDTH;
     const gapTop = pipe.gapY;
-    const gapBottom = pipe.gapY + GAP_HEIGHT;
+    const gapBottom = pipe.gapY + pipe.gapHeight;
     if ((birdTop < gapTop || birdBottom > gapBottom) && (birdRight > pipeLeft && birdLeft < pipeRight)){
       endGame();
     }
@@ -94,6 +100,8 @@ function update() {
     if (!pipe.passed && pipe.x + PIPE_WIDTH < bird.x) {
       pipe.passed = true;
       score++;
+      pipeSpeed = BASE_PIPE_SPEED + score * 0.1;
+      gapHeight = Math.max(MIN_GAP_HEIGHT, BASE_GAP_HEIGHT - score * 2);
       scoreDisplay.textContent = score;
     }
   });
@@ -105,7 +113,7 @@ function draw() {
 
   ctx.fillStyle = 'green';
   pipes.forEach(pipe => {
-    const gapBottom = pipe.gapY + GAP_HEIGHT;
+    const gapBottom = pipe.gapY + pipe.gapHeight;
     ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.gapY);
     ctx.fillRect(pipe.x, gapBottom, PIPE_WIDTH, canvas.height - gapBottom);
   });
