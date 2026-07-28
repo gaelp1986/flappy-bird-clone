@@ -10,6 +10,9 @@ const highScoreEl = document.getElementById('high-score');
 
 let state = 'start'; // 'start' | 'playing' | 'gameover'
 
+let score = 0;
+let highScore = Number(localStorage.getItem('flappyHighScore')) || 0;
+
 // ---- Core: constants ----
 const GRAVITY = 0.5;
 const JUMP_STRENGTH = 8;
@@ -29,7 +32,8 @@ const bird = {
 let pipes = [];
 
 function resetGame() {
-  // TODO: reset score
+  score = 0;
+  scoreDisplay.textContent = score;
   bird.y = canvas.height / 2;
   bird.velocity = 0;
   pipes = [];
@@ -40,7 +44,7 @@ function spawnPipe() {
   const maxGapY = canvas.height - GAP_HEIGHT - PIPE_MARGIN;
   const gapY = minGapY + Math.random() * (maxGapY - minGapY);
 
-  pipes.push({ x: canvas.width, gapY: gapY });
+  pipes.push({ x: canvas.width, gapY: gapY, passed: false });
 }
 
 function update() {
@@ -86,7 +90,13 @@ function update() {
     endGame();
   }
 
-  // TODO: update score when bird passes a pipe
+  pipes.forEach(pipe => {
+    if (!pipe.passed && pipe.x + PIPE_WIDTH < bird.x) {
+      pipe.passed = true;
+      score++;
+      scoreDisplay.textContent = score;
+    }
+  });
 }
 
 // ---- Shell: rendering ----
@@ -134,7 +144,14 @@ function handleInput() {
 
 function endGame() {
   state = 'gameover';
-  // TODO: update finalScoreEl / highScoreEl text, persist high score to localStorage
+
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('flappyHighScore', highScore);
+  }
+
+  finalScoreEl.textContent = `Score: ${score}`;
+  highScoreEl.textContent = `High Score: ${highScore}`;
   gameOverScreen.classList.remove('hidden');
 }
 
