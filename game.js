@@ -1,6 +1,7 @@
 // ---- Shell: canvas + DOM setup ----
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
+const gameContainer = document.getElementById('game-container');
 
 const scoreDisplay = document.getElementById('score-display');
 const startScreen = document.getElementById('start-screen');
@@ -218,7 +219,7 @@ function endGame() {
   gameOverScreen.classList.remove('hidden');
 }
 
-canvas.addEventListener('click', handleInput);
+gameContainer.addEventListener('click', handleInput);
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     e.preventDefault();
