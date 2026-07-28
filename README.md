@@ -16,8 +16,8 @@ Browser-based Flappy Bird recreation in vanilla JavaScript.
 Open `index.html` in a browser. That's it.
 
 ## Built with
-Vanilla JS/HTML/CSS. Developed using an AI-assisted workflow with
-Claude Code (Anthropic "Claude Code in Action" certified) — AI for
+Vanilla JS/HTML/CSS.
+- AI for
 scaffolding, human review and ownership of all game logic.
 
 Originally built at All Star Code (2023); rebuilt and expanded 2026.
